@@ -6,7 +6,12 @@ const express = require('express');
 const morgan = require('morgan');
 const app = express();
 const bodyParser = require('body-parser');
+var schedule = require('node-schedule');
+const wishController = require('./src/router/wishController');
+const crone = require('./src/crone/mailerCrone');
+require('dotenv').config()
 
+app.use('/wish/', wishController)
 app.use(bodyParser());
 app.use(morgan());
 
@@ -19,6 +24,12 @@ app.use(express.static('public'));
 // http://expressjs.com/en/starter/basic-routing.html
 app.get('/', (request, response) => {
   response.sendFile(__dirname + '/views/index.html');
+});
+
+
+// Crone Job for sending valid age requests on mail after every 15 seconds. 
+var j = schedule.scheduleJob('*/15 * * * * *', function() {
+  crone.sentValidRequestMail();
 });
 
 // listen for requests :)
